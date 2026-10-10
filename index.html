@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NFC Write</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .item { margin-bottom: 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    button { padding: 8px 16px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>スタンプラリーNFC書き込み</h2>
+  <div id="list"></div>
+
+  <script>
+    const data = [
+      { name: "M-ZERO (4M)", url: "https://koyosai.com/stamp/collect?token=1d9f9e1ea839a9db93e037a6512c09ef" },
+      { name: "じゃすとうぉー (4I)", url: "https://koyosai.com/stamp/collect?token=28b9be6408d05629ec9e86c3663d9cd8" },
+      { name: "トータルトーク (2E)", url: "https://koyosai.com/stamp/collect?token=0fbcc1b18c33d58f4370cb2903c82eec" },
+      { name: "ピタゴラスそうち (2M)", url: "https://koyosai.com/stamp/collect?token=bebdcd63befa2b1d0ad86997acfdab5d" },
+      { name: "過渡庵 (4A)", url: "https://koyosai.com/stamp/collect?token=cd479680e72869f2e879e9a471e61087" },
+      { name: "高専GO (2I)", url: "https://koyosai.com/stamp/collect?token=d52bab3c3b38bc10652814e9c209c49b" },
+      { name: "新宝Cま (4C)", url: "https://koyosai.com/stamp/collect?token=fe6d89551f39fe7a5e46372c8c07ec17" },
+      { name: "知。―防災の真理について― (2C)", url: "https://koyosai.com/stamp/collect?token=82c513544f565f4e7f70e72ef811195a" },
+      { name: "沈没！カミナリ・サンダース (4E)", url: "https://koyosai.com/stamp/collect?token=b9210dc2d7c07f7dce1797d1b10aa4f4" },
+      { name: "謎屋敷 (2A)", url: "https://koyosai.com/stamp/collect?token=6b3749726c1fab14ba86b941a52a63e6" },
+      { name: "鉄航研展示", url: "https://koyosai.com/stamp/collect?token=c0a4acb0ae1459044084308d8888189a" },
+      { name: "ロボコン", url: "https://koyosai.com/stamp/collect?token=80a8e538037b6c6ff0eb80cd0044bdd0" },
+      { name: "囲碁将棋", url: "https://koyosai.com/stamp/collect?token=bcfcc48a6eea67beeeefe22b3265a7c5" },
+      { name: "演劇部", url: "https://koyosai.com/stamp/collect?token=0e8c86ffda7a8575f180a06eb3c5511c" },
+      { name: "自動車部", url: "https://koyosai.com/stamp/collect?token=d94b7337d9b480bbf811af8a7f2c2d5d" },
+      { name: "写真部", url: "https://koyosai.com/stamp/collect?token=9d0ccc6e98e24a9ea7155768b7526eaa" },
+      { name: "吹奏楽部", url: "https://koyosai.com/stamp/collect?token=9009c75bfcffb8cb21fad90e2f6ac55c" },
+      { name: "総合創作部", url: "https://koyosai.com/stamp/collect?token=31065978a6f247b36e20394fa3439aff" },
+      { name: "茶道部", url: "https://koyosai.com/stamp/collect?token=4d2b746bc29a246d8cf131c05c0d6b98" },
+      { name: "天文同好会", url: "https://koyosai.com/stamp/collect?token=80448b998de726f57c67be59d5a3d6fb" },
+      { name: "模型飛行機", url: "https://koyosai.com/stamp/collect?token=a3e0bce17fe042299b000bf2dbceb61d" }
+    ];
+
+    const container = document.getElementById('list');
+
+    data.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'item';
+
+      const title = document.createElement('strong');
+      title.textContent = `${index + 1}. ${item.name}`;
+
+      const btn = document.createElement('button');
+      btn.textContent = '書き込む';
+      btn.addEventListener('click', () => writeNfc(item.url, btn));
+
+      div.append(title, document.createElement('br'), btn);
+      container.appendChild(div);
+    });
+
+    async function writeNfc(url, btn) {
+      if (!('NDEFReader' in window)) {
+        alert('Web NFC非対応のブラウザです。Android Chromeを使用してください。');
+        return;
+      }
+      const original = '書き込む';
+      try {
+        const ndef = new NDEFReader();
+        btn.disabled = true;
+        btn.textContent = 'カードをタッチ...';
+        await ndef.write(
+          { records: [{ recordType: "url", data: url }] },
+          { overwrite: true }
+        );
+        btn.textContent = '完了！(再書き込みも可)';
+        btn.style.backgroundColor = '#9e9';
+      } catch (error) {
+        btn.textContent = `失敗: ${error.name}`;
+        btn.style.backgroundColor = '#e99';
+      } finally {
+        btn.disabled = false;
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>
